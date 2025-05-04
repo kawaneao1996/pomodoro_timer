@@ -6,16 +6,34 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # リポジトリをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build with dx
+      # Rustツールチェインをセットアップ
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      # cargo-binstallをインストール
+      - name: Install cargo-binstall
+        run: cargo install cargo-binstall
+
+      # dioxus-cliをインストール
+      - name: Install dioxus-cli
+        run: cargo binstall dioxus-cli
+
+      # dx bundleを実行
+      - name: Build project with dioxus
         run: dx bundle --platform web
 
+      # GitHub Pagesにデプロイ
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
